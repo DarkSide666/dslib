@@ -3,13 +3,19 @@ Library of miscelanous ATK4 components made by Imants Horsts (aka DarkSide).
 COMPONENTS
 ---------
  1)	Advanced search form for Grid.
-	Example:
+	Example with Grid:
 		$g = $page->add('dslib/Grid_Extended');
 		$g->setModel('Example');
 		$g->addAdvancedSearch(array('name','salary','is_active','notes'));
+	Example with CRUD:
+		You can use this with CRUD->grid too, but then you have to extend default CRUD class like this:
+		class MyCRUD extends CRUD{
+			public $grid_class='dslib/Grid_Extended';
+		}
 	Known problems:
-		Not working well together with paginator (quickSearch doesn't do that ether).
-	
+		- Not working well together with paginator (quickSearch doesn't do that either).
+		- If you submit your search form by pressing Enter, then isClicked=false and submitted() method don't memorize token.
+		
  2)	New form field - Form_Field_Chooser or simply Chooser
 		... in development ...
 
