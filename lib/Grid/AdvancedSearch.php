@@ -79,7 +79,7 @@ class Grid_AdvancedSearch extends \Filter {
                 if(!$v)continue;
                 
                 // decide which method of comparing to use
-                $type = is_numeric($v) ? 'equal' : (is_string($v) ? 'like' : null);
+                $type = is_string($v) ? 'like' : (is_numeric($v) ? 'equal' : null);
 				
                 // also apply the condition
                 if($m=$this->view->model){
