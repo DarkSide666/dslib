@@ -6,46 +6,119 @@ class Form_Field_Chooser extends \Form_Field {
 	public $empty_id = '';
 	public $empty_text = 'No value';
 	protected $text = '';
-	
+
+	// CRUD rights
+	public $allow_add=false;
+	public $allow_edit=false;
+	public $allow_del=false;
+
 	// elements
+	protected $crud;
 	protected $bt_set;
 	protected $bt_choose;
 	protected $bt_delete;
+	
+	//public $chooser; // Chooser view
 	
 	// init
 	function init(){
 		parent::init();
 		
-		// NOT WORKING !!!
-		// Add intercept hook to page where this element/form is into in case if chooser is enabled and we should show CRUD form
-		if(@$_GET[$this->name]=='choose') {
-			//$page = $this->api->page_object;
-			//var_dump($_GET);
-			//$m = $page->add($_GET['model']);
-			//$c = $page->add('CRUD');
-			//$c->setModel($m);
+		// Add Chooser view - JUST TESTING. Probably I should use View for all these extended elements (text field, buttons)
+		//$this->chooser = $this->add('dslib/View_Chooser',null,'after_input');
+		
+		// Add CRUD for dialog window
+		if(isset($_GET[$this->name])) {
+            $this->api->stickyGET($this->name);
+			$this->crud = $this->add('CRUD',null,'after_input');
+			$this->crud->allow_add = $this->allow_add;
+			$this->crud->allow_edit = $this->allow_edit;
+			$this->crud->allow_del = $this->allow_del;
+            $this->api->cut($this->crud);
+
+			// If Return value from dialog
+			if(isset($_GET['choose'])){
+				$new_id = $_GET['id'];
+				$this->api->stickyForget($this->name);
+				
+				$this->crud->js(true,$this->js()->reload())->univ()
+					->closeDialog()
+					->alert('Got ID = '.$new_id.'. Now I should reload ID Field: '.$this->name)
+					->execute();
+				//return;
+			}
+
+            return;
 		}
 		
 	}
 	
-	// Set empty value and text
-	// Usage: emptyText() | emptyText('Please select...') | emptyText(array('0'=>'Please select...'))
-	function emptyText($v=null){
-		if(!$v) return $this;
-		if(is_array($v)) {
-			$this->empty_id = array_shift(array_keys($v));
-			$this->empty_text = array_shift(array_values($v));
-		} else {
-			$this->empty_text = $v;
+	function recursiveRender(){
+		
+		// If dialog window is open, then configure CRUD
+		if($this->crud){
+			$m = $this->form->getModel()->ref($this->short_name);
+			$this->crud->setModel($m,null,array($m->id_field,$m->getTitleField()));
+			if($this->crud->grid) {
+				$this->crud->grid->addColumn('button','choose','Izvçlçties'); /**/
+				$this->crud->grid->addPaginator(5);
+				$this->crud->grid->addQuickSearch(array($m->id_field,$m->getTitleField()));
+			}
+			
+			return parent::recursiveRender();
 		}
-		return $this;
+		// else add additional controls (text field + buttons)
+
+
+
+/*???*/ /*
+		// Add text field
+		// This object here is created, but it doesn't render.... Why? #@@%$&^%^$@$^&*%&$%#@!
+		$x = $this->add('Form_Field_Line','nosaukums','after_input') // class,name,spot,template?
+				->setForm($this->form)
+				->set('aaaa value aaaa');
+        $x->template->trySet('field_type','line');
+        echo $x;
+/*???*/
+		
+		// Add buttonset
+		$this->bt_set = $this->add('ButtonSet',null,'after_input')
+								->addClass('input-cell')
+								->addStyle('white-space','nowrap');
+		
+		// Add buttons
+		$this->bt_choose = $this->bt_set->addButton('')
+								->setHTML('<span class="ui-button-icon-primary ui-icon ui-icon-pencil">&nbsp;</span>')
+								->addStyle('margin-right','-.3em')
+								->js('click')->univ()
+									->frameURL('New',$this->api->getDestinationURL(null,array(
+										$this->name=>$this->value	//$this->js()->val()
+									)))
+								;
+		$this->bt_delete = $this->bt_set->addButton('')
+								->setHTML('<span class="ui-button-icon-secondary ui-icon ui-icon-close">&nbsp;</span>')
+								->addStyle('margin-right','-.3em')
+								->js('click',
+									$this->js()
+											->val($this->empty_id)
+										->closest('form')
+										->find('#'.$this->name.'_title')
+											->val($this->empty_text)
+										->univ()
+											->successMessage('Removed')
+								);
+		
+		return parent::recursiveRender();
 	}
 
-	// Return HTML of field/component
+	// Return HTML of field/component.
+	// This method is called only by Field.render(), so it's not called when we only have CRUD - cool ;)
 	function getInput($attr=array()){
+		// This function returns HTML tag for the input field. Derived classes should inherit this and add
+		// new properties if needed
 		
 		// get model
-		$m = $this->form->model;
+		$m = $this->form->getModel();
 		if(!$m) {
 			$this->displayFieldError("Form doesn't have associated model!");
 			return;
@@ -63,7 +136,7 @@ class Form_Field_Chooser extends \Form_Field {
 			if(!$n) {
 				$this->displayFieldError("Can't load referenced Model data!");
 			} else {
-				$this->text = $n->get($n->getTitleField());
+				$this->text = /*DEBUG*/'['.$n->get('id').'] './*DEBUG*/$n->get($n->getTitleField());
 			}
 		} else {
 			$this->value = $this->empty_id;
@@ -89,53 +162,6 @@ class Form_Field_Chooser extends \Form_Field {
 		return $r;
 	}
 
-	function recursiveRender(){
-		
-		// Fake button to show ID - just for DEBUG
-		$x = $this->add('Button',null,'before_input')->set('ID='.$this->value);
-		
-/*???*/ /*
-		// Add text field
-		// This object here is created, but it doesn't render.... Why? #@@%$&^%^$@$^&*%&$%#@!
-		$x = $this->add('Form_Field_Line','nosaukums','after_input') // class,name,spot,template?
-				->setForm($this->form)
-				->set('aaaa value aaaa');
-        $x->template->trySet('field_type','line');
-        echo $x;
-/*???*/
-		
-		// Add buttonset
-		$this->bt_set = $this->add('ButtonSet',null,'after_input')
-								->addClass('input-cell')
-								->addStyle('white-space','nowrap');
-		
-		// Add buttons
-		$this->bt_choose = $this->bt_set->addButton('')
-								->setHTML('<span class="ui-button-icon-primary ui-icon ui-icon-pencil">&nbsp;</span>')
-								->js('click')->univ()
-									->frameURL('New',$this->api->getDestinationURL(null,array(
-										$this->name=>'choose',
-										'id'=>$this->js()->val(),
-										'model'=>$this->form->model->short_name
-									)))
-								;
-		$this->bt_delete = $this->bt_set->addButton('')
-								->setHTML('<span class="ui-button-icon-secondary ui-icon ui-icon-close">&nbsp;</span>')
-								->js('click',
-									$this->js()
-											->val($this->empty_id)
-											//->css('border','2px solid yellow')
-										->closest('form')
-										->find('#'.$this->name.'_title')
-											->val($this->empty_text)
-											//->css('border','2px solid red')
-										->univ()
-											->successMessage('Removed')
-								);
-		
-		return parent::recursiveRender();
-	}
-
 	// Render all field as buttonset
     function render(){
 		// Enclose all component into .input-row block
@@ -145,4 +171,18 @@ class Form_Field_Chooser extends \Form_Field {
 		//$this->js(true)->buttonset(array('items'=>":input, :button, :submit, :reset, :checkbox, :radio, a, :data(button)"));
         parent::render();
     }
+
+	// Set empty value and text
+	// Usage: emptyText() | emptyText('Please select...') | emptyText(array('0'=>'Please select...'))
+	function emptyText($v=null){
+		if(!$v) return $this;
+		if(is_array($v)) {
+			$this->empty_id = array_shift(array_keys($v));
+			$this->empty_text = array_shift(array_values($v));
+		} else {
+			$this->empty_text = $v;
+		}
+		return $this;
+	}
+
 }

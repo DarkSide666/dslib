@@ -1,14 +1,14 @@
 <?php
 namespace dslib;
-class Grid_AdvancedSearch extends \Filter {
+class Grid_ExtendedSearch extends \Filter {
 	/*
-	 * AdvancedSearch represents many-field filter which works perfectly with a grid
+	 * ExtendedSearch represents many-field filter which works perfectly with a grid
 	 */
 	
 	public $fields = array();		// DB fields to show in search form
-	public $hide_on_load = true;	// Hide advanced search form on load
+	public $hide_on_load = true;	// Hide extended search form on load
 	
-	protected $token='qhs73hsjk7';	// Name of hidden token (random) which helps to detect if advanced search is enabled or not
+	protected $token='qhs73hsjk7';	// Name of hidden token (random) which helps to detect if extended search is enabled or not
 	protected $bs;
 	protected $bc;
 	protected $bt;
@@ -17,7 +17,7 @@ class Grid_AdvancedSearch extends \Filter {
 		parent::init();
 		
 		// Add show/hide button to the grid (owner of search form)
-		$this->bt = $this->owner->addButton('Advanced Search')
+		$this->bt = $this->owner->addButton('Extended Search')
 			//->addClass('float-right')
 			->setIcon('search');
 		$this->bt->js('click',$this->js()->toggle());
@@ -39,7 +39,7 @@ class Grid_AdvancedSearch extends \Filter {
 			$this->bt->addStyle(array('font-weight'=>'bold')); // highlight button when enabled
 		}
 		
-		// Hide advanced search form if needed
+		// Hide extended search form if needed
 		if($this->hide_on_load) $this->addStyle(array('display'=>'none'));
 	}
 	

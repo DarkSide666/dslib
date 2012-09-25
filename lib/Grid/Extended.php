@@ -2,13 +2,13 @@
 namespace dslib;
 class Grid_Extended extends \Grid {
 	
-    function addAdvancedSearch($fields,$class='dslib/Grid_AdvancedSearch'){
-        return $this->add($class,null,'advanced_search')
+    function addExtendedSearch($fields,$class='dslib/Grid_ExtendedSearch'){
+        return $this->add($class,null,'extended_search')
             ->useWith($this)
             ->useFields($fields);
     }
 
     function defaultTemplate(){
-        return array('grid_advanced'); // grid_advanced | grid_advanced_striped
+        return array('grid_extended'); // grid_extended | grid_extended_striped
     }
 }

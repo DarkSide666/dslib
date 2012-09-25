@@ -2,20 +2,16 @@ Library of miscelanous ATK4 components made by Imants Horsts (aka DarkSide).
 
 COMPONENTS
 ----------
- 1)	Advanced search form for Grid.
+ 1)	Extended search form for Grid.
 	
 	Example with Grid:
 		$g = $page->add('dslib/Grid_Extended');
 		$g->setModel('Example');
-		$g->addAdvancedSearch(array('name','salary','is_active','notes'));
+		$g->addExtendedSearch(array('name','salary','is_active','notes'));
 	
 	Example with CRUD:
-		You can use this with CRUD->grid too, but then you have to extend default
-		CRUD class:
-		class MyCRUD extends CRUD{
-			public $grid_class='dslib/Grid_Extended';
-		}
-		$page->add('MyCRUD');
+		You can use this extended grid with CRUD too:
+		$page->add('dslib/CRUD_Extended');
 	
 	Known problems:
 		- Not working well together with paginator (quickSearch doesn't do that
@@ -36,11 +32,7 @@ INITIALIZING ADD-ON
 -------------------
 Add following lines into your API class:
 $this->addLocation('atk4-addons',array(
-		'php' => array(
-			'dslib/lib',
-		),
-		'template'=> array(
-			'dslib/templates/default',
-		),
+		'php' => array('dslib/lib'),
+		'template'=> array('dslib/templates/default'),
 	))
     ->setParent($this->api->pathfinder->base_location);
