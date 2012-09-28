@@ -37,8 +37,8 @@ class Form_Field_Chooser extends \Form_Field {
             $this->api->cut($this->crud);
 
 			// If Return value from dialog
-			if(isset($_GET['choose'])){
-				$new_id = $_GET['id'];
+			if(isset($_GET['choosed_id'])){
+				$new_id = $_GET['choosed_id'];
 				$this->api->stickyForget($this->name);
 				
 				$this->crud->js(true,$this->js()->reload())->univ()
@@ -60,7 +60,7 @@ class Form_Field_Chooser extends \Form_Field {
 			$m = $this->form->getModel()->ref($this->short_name);
 			$this->crud->setModel($m,null,array($m->id_field,$m->getTitleField()));
 			if($this->crud->grid) {
-				$this->crud->grid->addColumn('button','choose','Izvçlçties'); /**/
+				$this->crud->grid->addColumn('button','choosed_id','Izvçlçties'); /**/
 				$this->crud->grid->addPaginator(5);
 				$this->crud->grid->addQuickSearch(array($m->id_field,$m->getTitleField()));
 			}
@@ -92,7 +92,8 @@ class Form_Field_Chooser extends \Form_Field {
 								->addStyle('margin-right','-.3em')
 								->js('click')->univ()
 									->frameURL('New',$this->api->getDestinationURL(null,array(
-										$this->name=>$this->value	//$this->js()->val()
+										$this->name=>'chooser',
+										$this->short_name=>$this->value, //$this->js()->val()
 									)))
 								;
 		$this->bt_delete = $this->bt_set->addButton('')
@@ -119,6 +120,7 @@ class Form_Field_Chooser extends \Form_Field {
 		
 		// get model
 		$m = $this->form->getModel();
+		//echo $this->form; // Sometimes this is set as Object dslib\Grid_ExtendedSearch WHY ???
 		if(!$m) {
 			$this->displayFieldError("Form doesn't have associated model!");
 			return;
