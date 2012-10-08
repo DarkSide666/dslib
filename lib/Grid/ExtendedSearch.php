@@ -53,11 +53,11 @@ class Grid_ExtendedSearch extends \Filter {
 	function _addFields($fields=null){
 		$fields = $fields?:$this->fields;
 		
-		// create model clone and remove mandatory settings
+		// create model clone and remove field specific settings (mandatory, readonly, editable, visible, system, hidden)
 		$m = $this->view->model->newInstance();
 		foreach($fields as $f){
 			if($m->hasField($f)){
-				$m->getField($f)->mandatory(false);
+				$m->getField($f)->mandatory(false)->readonly(false)->editable(true)->visible(true)->system(false)->hidden(false);
 			}
 		}
 		// import model clone in form (create appropriate form fields)
