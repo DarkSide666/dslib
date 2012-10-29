@@ -91,7 +91,7 @@ class Form_Field_Chooser extends \Form_Field {
 								->setHTML('<span class="ui-button-icon-primary ui-icon ui-icon-pencil">&nbsp;</span>')
 								->addStyle('margin-right','-.3em')
 								->js('click')->univ()
-									->frameURL('New',$this->api->getDestinationURL(null,array(
+									->frameURL('New',$this->api->url(null,array(
 										$this->name=>'chooser',
 										$this->short_name=>$this->value, //$this->js()->val()
 									)))
